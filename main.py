@@ -6,12 +6,6 @@ import random
 import shutil
 
 
-def find_number_latest_comic():
-    response = requests.get('https://xkcd.com/info.0.json')
-    response.raise_for_status()
-    return response.json()['num']
-
-
 def publish_comic(image_id, owner_id, token, text):
     payload = {
         'owner_id': '-223447832',
@@ -65,29 +59,29 @@ def get_upload_url(client_id, token):
     return response.json()['response']['upload_url']
 
 
-def get_comic(last_comic_num):
+def get_comic(name_folder):
+    last_comic_response = requests.get('https://xkcd.com/info.0.json')
+    last_comic_response.raise_for_status()
+    last_comic_num = last_comic_response.json()['num']
     url = f'https://xkcd.com/{random.randint(0, last_comic_num)}/info.0.json'
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
-
-
-def get_image(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.content
+    random_comic_response = requests.get(url)
+    random_comic_response.raise_for_status()
+    comic= random_comic_response.json()
+    Path(name_folder).mkdir(exist_ok=True)
+    image_response = requests.get(comic['img'])
+    image_response.raise_for_status()
+    image = image_response.content
+    with open(os.path.join(name_folder, f"image.png"), 'wb') as file:
+        file.write(image)
+    return comic
 
 
 def main():
     load_dotenv()
     client_id = os.environ["VK_CLIENT_ID"]
     vk_token = os.environ['VK_TOKEN']
-    last_comic_num = find_number_latest_comic()
-    comic = get_comic(last_comic_num)
     name_folder = 'files'
-    Path(name_folder).mkdir(exist_ok=True)
-    with open(os.path.join(name_folder, f"image.png"), 'wb') as file:
-        file.write(get_image(comic['img']))
+    comic = get_comic(name_folder)
     upload_url = get_upload_url(client_id, vk_token)
     address = upload_photo_to_address(name_folder, upload_url)
     album = save_photo(address['photo'], address['server'], address['hash'], vk_token)
