@@ -24,7 +24,6 @@ def publish_comic(image_id, owner_id, token, text):
     url = 'https://api.vk.com/method/wall.post'
     response = requests.post(url, data=payload)
     response.raise_for_status()
-    print(response.json())
 
 
 def save_photo(photo, server, hash, token):
