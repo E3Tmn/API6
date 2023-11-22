@@ -6,9 +6,9 @@ import random
 import shutil
 
 
-def publish_comic(image_id, owner_id, token, text):
+def publish_comic(image_id, owner_id, token, text, group_id):
     payload = {
-        'owner_id': '-223447832',
+        'owner_id': f'-{group_id}',
         'access_token': token,
         'from_group': 1,
         'v': '5.154',
@@ -20,10 +20,10 @@ def publish_comic(image_id, owner_id, token, text):
     response.raise_for_status()
 
 
-def save_photo(photo, server, hash, token):
+def save_photo(photo, server, hash, token, group_id):
     payload = {
         'access_token': token,
-        'group_id': '223447832',
+        'group_id': group_id,
         'photo': photo,
         'v': '5.154',
         'server': server,
@@ -46,12 +46,12 @@ def upload_photo_to_address(name_folder, upload_url):
     return response.json()
 
 
-def get_upload_url(client_id, token):
+def get_upload_url(client_id, token, group_id):
     payload = {
         'client_id': client_id,
         'access_token': token,
         'v': '5.154',
-        'group_id': '223447832'
+        'group_id': group_id
     }
     url = 'https://api.vk.com/method/photos.getWallUploadServer'
     response = requests.get(url, params=payload)
@@ -80,12 +80,13 @@ def main():
     load_dotenv()
     client_id = os.environ["VK_CLIENT_ID"]
     vk_token = os.environ['VK_TOKEN']
+    group_id = os.environ['VK_GROUP_ID']
     name_folder = 'files'
     comic = get_comic(name_folder)
-    upload_url = get_upload_url(client_id, vk_token)
+    upload_url = get_upload_url(client_id, vk_token, group_id)
     address = upload_photo_to_address(name_folder, upload_url)
-    album = save_photo(address['photo'], address['server'], address['hash'], vk_token)
-    publish_comic(album['id'], album['owner_id'], vk_token, comic['alt'])
+    album = save_photo(address['photo'], address['server'], address['hash'], vk_token, group_id)
+    publish_comic(album['id'], album['owner_id'], vk_token, comic['alt'], group_id)
     shutil.rmtree(name_folder)
 
 
