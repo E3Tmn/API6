@@ -41,7 +41,7 @@ def save_photo(photo, server, hash, token):
     return response.json()['response'][-1]
 
 
-def send_photo_to_address(name_folder, upload_url):
+def upload_photo_to_address(name_folder, upload_url):
     with open(os.path.join(name_folder, f"image.png"), 'rb') as file:
         url = upload_url
         files = {
@@ -52,7 +52,7 @@ def send_photo_to_address(name_folder, upload_url):
         return response.json()
 
 
-def get_download_address(client_id, token):
+def get_upload_url(client_id, token):
     payload = {
         'client_id': client_id,
         'access_token': token,
@@ -88,8 +88,8 @@ def main():
     Path(name_folder).mkdir(exist_ok=True)
     with open(os.path.join(name_folder, f"image.png"), 'wb') as file:
         file.write(get_image(comic['img']))
-    upload_url = get_download_address(client_id, vk_token)
-    address = send_photo_to_address(name_folder, upload_url)
+    upload_url = get_upload_url(client_id, vk_token)
+    address = upload_photo_to_address(name_folder, upload_url)
     album = save_photo(address['photo'], address['server'], address['hash'], vk_token)
     publish_comic(album['id'], album['owner_id'], vk_token, comic['alt'])
     shutil.rmtree(name_folder)
