@@ -89,7 +89,6 @@ def get_comic(name_folder):
 
 def main():
     load_dotenv()
-    # client_id = os.environ["VK_CLIENT_ID"]
     vk_token = os.environ['VK_TOKEN']
     group_id = os.environ['VK_GROUP_ID']
     name_folder = 'files'
